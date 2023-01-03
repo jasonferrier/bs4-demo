@@ -30,8 +30,28 @@ data = requests.post(GET_ITEMS, data=form_data)
 
 if data:
     print('Success!')
+
     # Convert string to Python dict
     results = json.loads(data.content)
-    print(results)
+    # print(results['item-info'])
+
+    # Parse the HTML for the values of `<div class="item-title">TITLE HERE</div>`
+    soup = BeautifulSoup(results['item-info'], "html.parser")
+    titles = soup.find_all("div", "item-title")
+    # print(titles)
+
+    # Dictionary with {id: data-join-id, title: HTML_CONTENT}
+    titles_dictionary = {}
+
+    for t in titles:
+      id = t.attrs.get("data-join-id", None)
+      # If the ID is found, add to dictionary of results
+      if id != "None":
+        titles_dictionary[id] = t.contents
+
+    print(titles_dictionary)
+
+    # GREAT! Now add pagination to scrape until no more results…
+
 else:
     print('Not Found.')
